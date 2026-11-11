@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "releaseVersion": "0.1.11",
+  "repositories": {
+    "server": {
+      "repository": "jefersonMarques/ifacematch-server",
+      "ref": "feature/native-cli-license-renewal-integration-v1",
+      "sha": "4c150c575cc33aef7b7c03e2e925586480745cfb",
+      "module": "services/api"
+    },
+    "console": {
+      "repository": "jefersonMarques/ifacematch-console",
+      "ref": "feature/console-first-login-mfa-v1",
+      "sha": "e20a4197e74c7fea13d2ab0b1784e665d6f60377",
+      "module": "."
+    },
+    "admin": {
+      "repository": "jefersonMarques/ifacematch-admin",
+      "ref": "fix/signed-console-login-0.1.11-build",
+      "sha": "cd4517ca9e94fc33b1ed59f02627229e03012857",
+      "module": "."
+    },
+    "site": {
+      "repository": "jefersonMarques/ifacematch-site",
+      "ref": "feature/customer-portal-installer-guided-v1",
+      "sha": "b653c14878230171881e776b5c75f11bf7abf36a",
+      "module": null
+    }
+  }
+}

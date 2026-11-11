@@ -1,0 +1,23 @@
+name: Coordinator CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  coordinator:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+      - name: Validate coordinator Python syntax
+        run: python3 -m py_compile scripts/coordinator.py
+      - name: Test coordinator without private repository access
+        run: python3 -m unittest discover -s tests -v
+      - name: Check lockfile configuration
+        run: python3 scripts/coordinator.py help
