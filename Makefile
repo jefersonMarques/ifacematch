@@ -8,7 +8,7 @@ GIT_PROTOCOL ?= ssh
 
 export GIT_PROTOCOL
 
-.PHONY: help doctor bootstrap test-coordinator test build release release-verify publish deploy
+.PHONY: help doctor bootstrap test-coordinator test build release-base release release-verify publish deploy
 
 help:
 	@python3 scripts/coordinator.py help
@@ -27,6 +27,9 @@ test: test-coordinator
 
 build:
 	@python3 scripts/coordinator.py build
+
+release-base:
+	@python3 scripts/coordinator.py release-base --base-archive "$(BASE_ARCHIVE)"
 
 release:
 	@python3 scripts/coordinator.py release --version "$(VERSION)" --base-archive "$(BASE_ARCHIVE)"
