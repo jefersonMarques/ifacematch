@@ -1,8 +1,10 @@
+import hashlib
 import json
 import tempfile
 import unittest
 from pathlib import Path
 from importlib.util import module_from_spec, spec_from_file_location
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = spec_from_file_location("coordinator", ROOT / "scripts/coordinator.py")
@@ -65,6 +67,87 @@ class RemoteTests(unittest.TestCase):
                 coordinator.os.environ.pop("GIT_PROTOCOL", None)
             else:
                 coordinator.os.environ["GIT_PROTOCOL"] = original
+
+
+
+class BaseArchiveTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.home = Path(temporary.name) / "home"
+        self.root = Path(temporary.name) / "coordinator"
+        self.workspace = Path(temporary.name) / "workspace"
+        for directory in (self.home, self.root, self.workspace):
+            directory.mkdir()
+        self.payload = b"signed-test-archive-fixture"
+        self.pin = hashlib.sha256(self.payload).hexdigest()
+
+    def resolve(self, chosen=""):
+        with patch.object(coordinator, "BASE_SHA256", self.pin):
+            return coordinator.resolve_base_archive(
+                chosen, home=self.home, root=self.root, workspace=self.workspace,
+            )
+
+    def create_archive(self, destination, payload=None):
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(self.payload if payload is None else payload)
+        return destination
+
+    def test_finds_archive_in_coordinator_release_directory(self):
+        expected = self.create_archive(
+            self.root / "dist/releases/0.1.10" / coordinator.BASE_ARCHIVE_NAME
+        )
+        self.assertEqual(self.resolve(), expected)
+
+    def test_finds_archive_through_operator_release_pointer(self):
+        archive = self.create_archive(
+            self.home / "ifacematch-signing-0.1.10-test" / coordinator.BASE_ARCHIVE_NAME
+        )
+        pointer = self.home / ".config/ifacematch/release-0.1.10.path"
+        pointer.parent.mkdir(parents=True)
+        pointer.write_text(str(archive.parent) + "\n", encoding="utf-8")
+        self.assertEqual(self.resolve(), archive)
+
+    def test_finds_archive_in_local_signing_directory(self):
+        expected = self.create_archive(
+            self.home / "ifacematch-signing-0.1.10-test" / coordinator.BASE_ARCHIVE_NAME
+        )
+        self.assertEqual(self.resolve(), expected)
+
+    def test_skips_mismatched_archive_if_valid_copy_exists(self):
+        self.create_archive(
+            self.root / "dist/releases/0.1.10" / coordinator.BASE_ARCHIVE_NAME,
+            b"bad-artifact",
+        )
+        expected = self.create_archive(
+            self.home / "ifacematch-signed-0.1.10-test" / coordinator.BASE_ARCHIVE_NAME
+        )
+        self.assertEqual(self.resolve(), expected)
+
+    def test_manual_override_is_still_supported(self):
+        expected = self.create_archive(
+            self.workspace / "archives" / coordinator.BASE_ARCHIVE_NAME
+        )
+        self.assertEqual(self.resolve(str(expected)), expected)
+
+    def test_rejects_archive_with_wrong_sha256(self):
+        invalid = self.create_archive(
+            self.workspace / "archives" / coordinator.BASE_ARCHIVE_NAME,
+            b"incorrect-archive",
+        )
+        with self.assertRaisesRegex(coordinator.CoordinatorError, "SHA-256"):
+            self.resolve(str(invalid))
+
+    def test_missing_archive_has_actionable_error(self):
+        with self.assertRaisesRegex(coordinator.CoordinatorError, "release-0.1.10.path"):
+            self.resolve()
+
+    def test_refuses_relative_release_pointer(self):
+        pointer = self.home / ".config/ifacematch/release-0.1.10.path"
+        pointer.parent.mkdir(parents=True)
+        pointer.write_text("./relative/path", encoding="utf-8")
+        with self.assertRaisesRegex(coordinator.CoordinatorError, "absolute path"):
+            self.resolve()
 
 
 if __name__ == "__main__":
