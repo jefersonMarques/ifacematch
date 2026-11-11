@@ -106,7 +106,7 @@ def verified_git_repository(name, config):
     if remote not in allowed:
         raise CoordinatorError(f"Unexpected origin configured for {name}")
     try:
-        execute(["git", "-C", location, "cat-file", "-e", f"{config['sha']}^{{commit}}"], quiet=True)
+        capture(["git", "-C", location, "cat-file", "-e", f"{config['sha']}^{{commit}}"])
     except CoordinatorError as error:
         raise CoordinatorError(
             f"Pinned commit missing in {name}; run make bootstrap"
