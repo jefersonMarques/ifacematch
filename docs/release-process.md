@@ -16,9 +16,12 @@ make doctor
 make bootstrap
 make test
 make build
-make release VERSION=0.1.11 BASE_ARCHIVE=/absolute/path/ifacematch-0.1.10-ubuntu-amd64.tar.gz
+make release-base
+make release VERSION=0.1.11
 make release-verify VERSION=0.1.11
 ```
+
+By default, `make release-base` and `make release` automatically locate the signed 0.1.10 archive in the coordinator release directory, local workspace releases, an operator release pointer (`~/.config/ifacematch/release-0.1.10.path`) or matching local signing directories. All candidates are checked against the pinned SHA-256. No archive is downloaded from an untrusted location. If no valid archive exists, the command exits without making a release; you can register its directory in the pointer file once or use `BASE_ARCHIVE=/absolute/path/to/archive.tar.gz` as a one-time override.
 
 The `build` target creates **unsigned development binaries** under `dist/build/`; they are not production deliverables. The `release` target invokes the Admin candidate builder pinned by the lockfile, performs Console tests and signed baseline checks, signs a complete new release and enforces that the only changed components are Console binary and its provenance.
 
