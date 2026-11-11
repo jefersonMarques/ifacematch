@@ -26,6 +26,7 @@ TRUST_PATH = Path.home() / ".config/ifacematch/distribution/distribution.public"
 TRUST_KEY_ID = "ifm_distribution_prod_v1"
 BASE_VERSION = "0.1.10"
 BASE_SHA256 = "e6d0e991694c471c79e4d2e6d02f641b5144ec48d3f4bb9900b4eaca1ba5373e"
+BASE_ARCHIVE_NAME = f"ifacematch-{BASE_VERSION}-ubuntu-amd64.tar.gz"
 
 
 class CoordinatorError(Exception):
@@ -254,22 +255,79 @@ def build(repositories):
 
 def verify_base_archive(source):
     if not source.is_absolute() or not source.is_file() or source.is_symlink():
-        raise CoordinatorError("BASE_ARCHIVE must be an existing absolute regular file")
+        raise CoordinatorError("Source archive must be an existing absolute regular file")
     digest = hashlib.sha256()
     with source.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     if digest.hexdigest() != BASE_SHA256:
-        raise CoordinatorError("Base archive SHA-256 does not match the official 0.1.10")
+        raise CoordinatorError(f"Base archive SHA-256 does not match the pinned {BASE_VERSION} release")
+
+
+def base_archive_candidates(home, workspace, root):
+    yield root / "dist" / "releases" / BASE_VERSION / BASE_ARCHIVE_NAME
+    yield workspace / "releases" / BASE_VERSION / BASE_ARCHIVE_NAME
+    yield home / ".config" / "ifacematch" / "releases" / BASE_VERSION / BASE_ARCHIVE_NAME
+
+    pointer = home / ".config" / "ifacematch" / f"release-{BASE_VERSION}.path"
+    if pointer.exists() or pointer.is_symlink():
+        if pointer.is_symlink() or not pointer.is_file():
+            raise CoordinatorError(f"Release pointer must be a regular file: {pointer}")
+        location = Path(pointer.read_text(encoding="utf-8").strip()).expanduser()
+        if not location.is_absolute():
+            raise CoordinatorError(f"Release pointer must contain an absolute path: {pointer}")
+        yield location / BASE_ARCHIVE_NAME if location.is_dir() else location
+
+    for directory in sorted(home.glob(f"*{BASE_VERSION}*")):
+        if not directory.is_dir() or directory.is_symlink():
+            continue
+        for subdirectory in ("", "release", "signed", "output"):
+            yield directory / subdirectory / BASE_ARCHIVE_NAME
+
+
+def resolve_base_archive(chosen="", *, home=None, workspace=None, root=None):
+    if chosen:
+        archive = Path(chosen).expanduser()
+        verify_base_archive(archive)
+        return archive
+
+    home = home if home is not None else Path.home()
+    workspace = workspace if workspace is not None else WORKSPACE
+    root = root if root is not None else ROOT
+    inspected = set()
+    rejected = []
+
+    for archive in base_archive_candidates(home, workspace, root):
+        if archive in inspected:
+            continue
+        inspected.add(archive)
+        if not archive.exists() and not archive.is_symlink():
+            continue
+        try:
+            verify_base_archive(archive)
+        except (CoordinatorError, OSError) as error:
+            rejected.append(f"{archive}: {error}")
+            continue
+        return archive
+
+    if rejected:
+        raise CoordinatorError(
+            f"No valid signed {BASE_VERSION} archive was found. "
+            f"Rejected candidates: {'; '.join(rejected)}"
+        )
+    raise CoordinatorError(
+        f"Signed {BASE_VERSION} archive not found in the configured local release "
+        "locations. Register its directory in "
+        f"~/.config/ifacematch/release-{BASE_VERSION}.path, "
+        "or use BASE_ARCHIVE=/absolute/path for this build."
+    )
 
 
 def make_release(repositories, version, base_archive):
     if version != "0.1.11":
         raise CoordinatorError("The only implemented and reviewed release adapter is 0.1.11")
-    if not base_archive:
-        raise CoordinatorError("Set BASE_ARCHIVE to the signed 0.1.10 archive")
-    source = Path(base_archive).expanduser()
-    verify_base_archive(source)
+    source = resolve_base_archive(base_archive)
+    print(f"[BASE] Verified signed {BASE_VERSION} archive: {source}", flush=True)
     destination = ROOT / "dist" / "releases" / version
     if destination.exists():
         raise CoordinatorError("Release output already exists; never overwrite signed builds")
@@ -287,6 +345,11 @@ def make_release(repositories, version, base_archive):
         builder = stage / "ifacematch-admin/scripts/build-signed-console-login-0.1.11.sh"
         execute(["bash", builder, stage, source, destination])
     print(f"[PASS] Release created: {destination}")
+
+
+def show_release_base(chosen):
+    source = resolve_base_archive(chosen)
+    print(f"[PASS] Verified signed {BASE_VERSION} base: {source}")
 
 
 def release_archive(version, chosen):
@@ -336,7 +399,7 @@ def main():
         "command",
         choices=(
             "help", "doctor", "bootstrap", "test", "build",
-            "release", "release-verify", "publish", "deploy",
+            "release", "release-base", "release-verify", "publish", "deploy",
         ),
     )
     parser.add_argument("--version", default="0.1.11")
@@ -346,7 +409,8 @@ def main():
     if options.command == "help":
         print(
             "make doctor | make bootstrap | make test | make build\n"
-            "make release VERSION=0.1.11 BASE_ARCHIVE=/absolute/signed-0.1.10.tar.gz\n"
+            "make release-base                 (find and verify signed 0.1.10)\n"
+            "make release VERSION=0.1.11       (auto-discover signed 0.1.10)\n"
             "make release-verify VERSION=0.1.11\n"
             "make publish VERSION=0.1.11  (blocked until approved integration)\n"
             "make deploy VERSION=0.1.11   (blocked until approved integration)\n"
@@ -362,6 +426,7 @@ def main():
         "release": lambda: make_release(
             repositories, options.version, options.base_archive,
         ),
+        "release-base": lambda: show_release_base(options.base_archive),
         "release-verify": lambda: verify_release(
             repositories, options.version, options.archive,
         ),
