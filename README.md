@@ -20,9 +20,12 @@ make build
 Para gerar a correção comercial **0.1.11**, é necessário possuir o arquivo **0.1.10 assinado**, com SHA-256 previamente conhecido, e a chave Ed25519 já utilizada pela distribuição:
 
 ```bash
-make release VERSION=0.1.11 BASE_ARCHIVE=/absolute/path/ifacematch-0.1.10-ubuntu-amd64.tar.gz
+make release-base
+make release VERSION=0.1.11
 make release-verify VERSION=0.1.11
 ```
+
+O coordenador localiza automaticamente a release-base assinada `0.1.10` no inventário local (incluindo `~/.config/ifacematch/release-0.1.10.path`) e verifica seu SHA-256 antes de iniciar a compilação. Se o arquivo estiver em um local não convencional, use `BASE_ARCHIVE=/caminho/absoluto/arquivo.tar.gz` como exceção. Nunca é necessário informar o caminho em cada execução.
 
 O comando `make release` **não publica nem instala nada**. As operações remotas estão bloqueadas até existir um adaptador de publicação e implantação homologado.
 
