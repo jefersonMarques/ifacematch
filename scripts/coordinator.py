@@ -393,6 +393,18 @@ def verify_release(repositories, version, archive_argument):
     return archive
 
 
+def publish_release(repositories, version, archive_argument):
+    archive = verify_release(repositories, version, archive_argument)
+    expected = ROOT / "dist" / "releases" / version
+    if archive.parent != expected:
+        raise CoordinatorError(
+            "Publishing requires the standard verified release directory"
+        )
+    execute(
+        ["python3", ROOT / "scripts" / "publish.py", "--version", version]
+    )
+
+
 def restricted_remote_action(repositories, command, version, archive_argument):
     archive = verify_release(repositories, version, archive_argument)
     print(f"[PLAN] {command} {version}: {archive}")
@@ -421,7 +433,7 @@ def main():
             "make release-base                 (find and verify signed 0.1.10)\n"
             "make release VERSION=0.1.11       (auto-discover signed 0.1.10)\n"
             "make release-verify VERSION=0.1.11\n"
-            "make publish VERSION=0.1.11  (blocked until approved integration)\n"
+            "make publish VERSION=0.1.11       (upload verified GitHub Release)\n"
             "make deploy VERSION=0.1.11   (blocked until approved integration)\n"
             "Use GIT_PROTOCOL=https for GitHub HTTPS instead of SSH."
         )
@@ -439,8 +451,8 @@ def main():
         "release-verify": lambda: verify_release(
             repositories, options.version, options.archive,
         ),
-        "publish": lambda: restricted_remote_action(
-            repositories, "publish", options.version, options.archive,
+        "publish": lambda: publish_release(
+            repositories, options.version, options.archive,
         ),
         "deploy": lambda: restricted_remote_action(
             repositories, "deploy", options.version, options.archive,
