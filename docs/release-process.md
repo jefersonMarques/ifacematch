@@ -1,5 +1,7 @@
 # Signed release workflow
 
+**Operations runbook:** [Manual operacional (Português) — build, assinatura, publicação, instalação e rollback](release-operations-runbook.md). Este arquivo descreve os detalhes técnicos e históricos; para executar operações use o manual como referência principal.
+
 ## Prerequisites
 
 Ubuntu or WSL with Git, Go, Python 3, Make and Tar, plus access to the four component repositories. For release signing, the authorized operator also needs the existing Ed25519 distribution authority stored privately in `~/.config/ifacematch/distribution/`. Never copy signing private keys into Git repositories or customer servers.
