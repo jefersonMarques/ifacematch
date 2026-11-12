@@ -83,7 +83,7 @@ printf '%s  %s\n' "$expected_archive_sha256" "$archive_path" |
 echo "[PASS] Published signed release $release_version: SHA-256 verified."
 
 if [[ "$update_mode" == "--check" ]]; then
-    echo '[PASS] Download/read-only preflight completed; no services modified.'
+    echo '[PASS] Download and integrity check completed; no services modified.'
     exit 0
 fi
 
