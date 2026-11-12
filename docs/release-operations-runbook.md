@@ -7,6 +7,8 @@
 **Escopo validado:** Customer Hosted, Ubuntu 24.04 AMD64, release `0.1.11` do Console.  
 **Estado:** Procedimento `0.1.11` executado em produção e validado; **não é ainda um mecanismo genérico para versões futuras**.
 
+**Situação já concluída em 12/11/2026:** a `v0.1.11` está publicada no GitHub e instalada na VPS-piloto; os serviços, a API `/health` e o login real foram validados. **Não repetir `make publish` nem o instalador de `0.1.11` nesse cliente.** Os comandos abaixo documentam o procedimento realizado e orientam novas execuções somente em cenários compatíveis e autorizados.
+
 > **LEIA ANTES DE EXECUTAR:** o repositório `jefersonMarques/ifacematch` é público. Não adicione nele chaves privadas, dados pessoais de clientes, IPs/credenciais de produção, licenças, backups nem segredos. O download da release é público; a autorização de uso é controlada por licença.
 
 ## Sumário
@@ -272,10 +274,14 @@ curl --fail --location --silent --show-error \
     --output /root/ifacematch-update.sh \
     https://github.com/jefersonMarques/ifacematch/releases/download/v0.1.11/ifacematch-update.sh
 
+printf '%s  %s\n' \
+    'af670ccd715356b785b93c0e0683a2d3044b79e511cf0ab177cfef8c1c885ee9' \
+    '/root/ifacematch-update.sh' | sha256sum -c -
+
 bash -n /root/ifacematch-update.sh
 ~~~
 
-O script é um artefato operacional versionado e executado como root. A equipe deve conferi-lo contra o arquivo aprovado no GitHub Release antes da execução. A conexão HTTPS e o `bash -n`, isoladamente, não autenticam sua origem de forma criptográfica.
+**Critério de passagem:** o arquivo do atualizador retorna `OK`. O SHA-256 acima foi confirmado no asset oficial publicado de `v0.1.11`; para outras versões é obrigatório usar o hash aprovado daquela versão, jamais reutilizar o desta release. O `bash -n` testa sintaxe, não substitui revisão do script. A equipe deve conferir a origem e aprovação do artefato antes de executá-lo como root.
 
 ### 6.3 Baixar e verificar o pacote, sem reiniciar serviços
 
