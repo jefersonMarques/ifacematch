@@ -2,6 +2,8 @@
 
 Coordenador de compilação, testes e distribuição do iFaceMatch Customer Hosted.
 
+**Procedimento oficial para a equipe:** [Manual operacional — build, assinatura, publicação, instalação, validação e rollback](docs/release-operations-runbook.md). O manual diferencia os passos já homologados para `0.1.11` das automações futuras.
+
 Este repositório **não contém o código dos componentes**, chaves privadas, licenças de clientes ou artefatos biométricos. Usa commits imutáveis de quatro repositórios e executa builds em diretórios temporários.
 
 > **Aviso:** este repositório está público no GitHub. Mantenha segredos, chaves de assinatura, pacotes comerciais e dados de clientes fora do Git.
