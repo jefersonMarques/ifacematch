@@ -216,6 +216,15 @@ def test(repositories):
             print(f"[TEST] {name}", flush=True)
             execute(["go", "test", "./..."], cwd=module)
             execute(["go", "vet", "./..."], cwd=module)
+        print("[TEST] Admin signed release staging", flush=True)
+        execute(
+            [
+                "python3", "-m", "unittest", "discover",
+                "-s", root / "ifacematch-admin" / "scripts",
+                "-p", "test_build_signed_console_login_0_1_11.py",
+                "-v",
+            ]
+        )
         site = root / "ifacematch-site"
         for path in sorted(site.rglob("*.sh")):
             execute(["bash", "-n", path], quiet=True)
