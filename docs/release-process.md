@@ -29,7 +29,30 @@ Signed packages are placed under `dist/releases/0.1.11/` and are excluded from G
 
 ## Publication and deployment
 
-`make publish` and `make deploy` are **fail-closed** until an independently reviewed production adapter is integrated and tested. These targets only verify the local signed package and refuse remote mutations. Do not interpret a successful build as a published release.
+**Publication is implemented for the signed pilot 0.1.11.** The distribution operator runs:
+
+```bash
+cd /opt/iFaceMatch/ifacematch
+git pull --ff-only
+gh auth status || gh auth login
+make publish VERSION=0.1.11
+```
+
+The publish command verifies the signed archive against local Ed25519 trust, checks its pinned SHA-256 and the updater script, then creates a new `v0.1.11` GitHub Release with exactly three assets: the archive, `SHA256SUMS`, and `ifacematch-update.sh`. It checks that the source repository is public and at the current `main` commit, rejects existing releases/tags, and downloads published files to verify their checksums. Never upload private signing keys, client licenses or secrets.
+
+**Pilot deployment is a separate privileged operation** on the customer VPS (`srv855672`):
+
+```bash
+curl --fail --location --silent --show-error \
+  --output /root/ifacematch-update.sh \
+  https://github.com/jefersonMarques/ifacematch/releases/download/v0.1.11/ifacematch-update.sh
+bash -n /root/ifacematch-update.sh
+bash /root/ifacematch-update.sh --check
+```
+
+After confirming an external snapshot/backup and an appropriate maintenance window, run `bash /root/ifacematch-update.sh 0.1.11` as root. The updater downloads and caches the pinned archive, validates its SHA-256 and uses the installed iFaceMatch CLI to verify the Ed25519 signed release, stage it under a new version and switch only the Console unit with rollback on failed post-update checks. The `--check` mode may write the local cache but does not restart services. Do not use this pilot-specific script on other servers.
+
+`make deploy` is still blocked until a general multi-version component updater is independently tested. Publishing is **not** deploying.
 
 The detailed candidate pilot upgrade and rollback instructions live in the private Admin repository on the pinned branch, under `docs/RELEASE_0_1_11_CONSOLE_LOGIN_HOTFIX.md`. The current generic server upgrade intentionally rejects Console-only changes; do not force it or edit signed release files in place.
 
