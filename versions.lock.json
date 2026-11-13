@@ -17,7 +17,7 @@
     "admin": {
       "repository": "jefersonMarques/ifacematch-admin",
       "ref": "feature/signed-console-and-cli-upgrade-0.1.14",
-      "sha": "3e4ea67334e0ba1a8117cd536a5703b5f0cdf0ad",
+      "sha": "65cfa50bc76ed232a50ee821da684edd4523e6bc",
       "module": "."
     },
     "site": {
