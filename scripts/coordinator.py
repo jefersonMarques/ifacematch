@@ -221,7 +221,7 @@ def test(repositories):
             [
                 "python3", "-m", "unittest", "discover",
                 "-s", root / "ifacematch-admin" / "scripts",
-                "-p", "test_build_signed_console_upgrade_0_1_14.py",
+                "-p", "test_build_signed_console_upgrade_0_1_15.py",
                 "-v",
             ]
         )
@@ -333,8 +333,8 @@ def resolve_base_archive(chosen="", *, home=None, workspace=None, root=None):
 
 
 def make_release(repositories, version, base_archive):
-    if version != "0.1.14":
-        raise CoordinatorError("The only implemented and reviewed release adapter is 0.1.14")
+    if version != "0.1.15":
+        raise CoordinatorError("The only implemented and reviewed release adapter is 0.1.15")
     source = resolve_base_archive(base_archive)
     print(f"[BASE] Verified signed {BASE_VERSION} archive: {source}", flush=True)
     destination = ROOT / "dist" / "releases" / version
@@ -351,7 +351,7 @@ def make_release(repositories, version, base_archive):
                 "--branch", config["ref"], remote_url(config["repository"]), location
             ], quiet=True)
             execute(["git", "-C", location, "checkout", "--detach", config["sha"]], quiet=True)
-        builder = stage / "ifacematch-admin/scripts/build-signed-console-upgrade-0.1.14.sh"
+        builder = stage / "ifacematch-admin/scripts/build-signed-console-upgrade-0.1.15.sh"
         execute(["bash", builder, stage, source, destination])
     print(f"[PASS] Release created: {destination}")
 
@@ -423,7 +423,7 @@ def main():
             "release", "release-base", "release-verify", "publish", "deploy",
         ),
     )
-    parser.add_argument("--version", default="0.1.14")
+    parser.add_argument("--version", default="0.1.15")
     parser.add_argument("--base-archive", default="")
     parser.add_argument("--archive", default="")
     options = parser.parse_args()
@@ -431,10 +431,10 @@ def main():
         print(
             "make doctor | make bootstrap | make test | make build\n"
             "make release-base                 (find and verify signed 0.1.10)\n"
-            "make release VERSION=0.1.14       (auto-discover signed 0.1.10)\n"
-            "make release-verify VERSION=0.1.14\n"
-            "make publish VERSION=0.1.14       (upload verified GitHub Release)\n"
-            "make deploy VERSION=0.1.14   (blocked until approved integration)\n"
+            "make release VERSION=0.1.15       (auto-discover signed 0.1.10)\n"
+            "make release-verify VERSION=0.1.15\n"
+            "make publish VERSION=0.1.15       (upload verified GitHub Release)\n"
+            "make deploy VERSION=0.1.15   (blocked until approved integration)\n"
             "Use GIT_PROTOCOL=https for GitHub HTTPS instead of SSH."
         )
         return
