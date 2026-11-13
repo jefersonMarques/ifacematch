@@ -18,7 +18,7 @@ class LockfileTests(unittest.TestCase):
         self.assertEqual(set(data), set(coordinator.REPOSITORY_NAMES))
         self.assertEqual(data["console"]["sha"], "6b9b0fdc18b94b1e722cdce18517026019943692")
         self.assertEqual(data["server"]["sha"], "41b62aa5743dfb2c68205e41e87a413f5bb2b8b7")
-        self.assertEqual(data["admin"]["sha"], "65cfa50bc76ed232a50ee821da684edd4523e6bc")
+        self.assertEqual(data["admin"]["sha"], "c3c0b814c0cacd19d2933b411a56ce8b7747ed28")
 
     def test_rejects_unexpected_repository(self):
         self.assert_invalid({"repository": "example/console"})
