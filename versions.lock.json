@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "releaseVersion": "0.1.14",
+  "releaseVersion": "0.1.15",
   "repositories": {
     "server": {
       "repository": "jefersonMarques/ifacematch-server",
@@ -16,8 +16,8 @@
     },
     "admin": {
       "repository": "jefersonMarques/ifacematch-admin",
-      "ref": "feature/signed-console-and-cli-upgrade-0.1.14",
-      "sha": "65cfa50bc76ed232a50ee821da684edd4523e6bc",
+      "ref": "feature/signed-console-and-cli-upgrade-0.1.15",
+      "sha": "c3c0b814c0cacd19d2933b411a56ce8b7747ed28",
       "module": "."
     },
     "site": {
