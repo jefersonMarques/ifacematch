@@ -1,29 +1,29 @@
 {
   "schemaVersion": 1,
-  "releaseVersion": "0.1.11",
+  "releaseVersion": "0.1.15",
   "repositories": {
     "server": {
       "repository": "jefersonMarques/ifacematch-server",
-      "ref": "feature/native-cli-license-renewal-integration-v1",
-      "sha": "4c150c575cc33aef7b7c03e2e925586480745cfb",
+      "ref": "feature/customer-hosted-console-only-upgrade-20261113",
+      "sha": "41b62aa5743dfb2c68205e41e87a413f5bb2b8b7",
       "module": "services/api"
     },
     "console": {
       "repository": "jefersonMarques/ifacematch-console",
-      "ref": "feature/console-first-login-mfa-v1",
-      "sha": "3f188e7d3268f2b057dbf5b96068f2e410a2ec92",
+      "ref": "fix/customer-hosted-http-login-csrf-regression-20261113",
+      "sha": "6b9b0fdc18b94b1e722cdce18517026019943692",
       "module": "."
     },
     "admin": {
       "repository": "jefersonMarques/ifacematch-admin",
-      "ref": "fix/signed-console-login-0.1.11-build",
-      "sha": "650faeb876fd9b50d454d0351d82463d33098d2e",
+      "ref": "feature/signed-console-and-cli-upgrade-0.1.15",
+      "sha": "c3c0b814c0cacd19d2933b411a56ce8b7747ed28",
       "module": "."
     },
     "site": {
       "repository": "jefersonMarques/ifacematch-site",
-      "ref": "feature/customer-portal-installer-guided-v1",
-      "sha": "b653c14878230171881e776b5c75f11bf7abf36a",
+      "ref": "feature/customer-hosted-console-upgrade-20261113",
+      "sha": "e8de5f1f615aa81f9fef870b17b0ba105b1ebc72",
       "module": null
     }
   }
