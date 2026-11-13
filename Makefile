@@ -1,7 +1,7 @@
 SHELL := /usr/bin/env bash
 .DEFAULT_GOAL := help
 
-VERSION ?= 0.1.14
+VERSION ?= 0.1.15
 BASE_ARCHIVE ?=
 ARCHIVE ?=
 GIT_PROTOCOL ?= ssh
