@@ -16,7 +16,7 @@
     },
     "admin": {
       "repository": "jefersonMarques/ifacematch-admin",
-      "ref": "fix/signed-console-login-0.1.11-build",
+      "ref": "refs/tags/legacy/admin/fix/signed-console-login-0.1.11-build",
       "sha": "650faeb876fd9b50d454d0351d82463d33098d2e",
       "module": "."
     },
