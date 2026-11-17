@@ -118,15 +118,17 @@ def verified_git_repository(name, config):
 def bootstrap(repositories):
     for name, config in repositories.items():
         location = repository_path(name)
+        reference_kind = "tags" if name == "server" else "heads"
+        remote_reference = f"refs/{reference_kind}/{config['ref']}"
         if not location.exists():
             print(f"[CLONE] {name}", flush=True)
             execute(["git", "clone", "--no-checkout", remote_url(config["repository"]), location])
-            execute(["git", "-C", location, "fetch", "--no-tags", "origin", f"refs/heads/{config['ref']}"], quiet=True)
+            execute(["git", "-C", location, "fetch", "--no-tags", "origin", remote_reference], quiet=True)
             execute(["git", "-C", location, "checkout", "--detach", config["sha"]])
         else:
             verified_git_remote(name, config)
             print(f"[FETCH] {name} (working tree unchanged)", flush=True)
-            execute(["git", "-C", location, "fetch", "--no-tags", "origin", f"refs/heads/{config['ref']}"])
+            execute(["git", "-C", location, "fetch", "--no-tags", "origin", remote_reference])
         verified_git_repository(name, config)
     print("[PASS] All pinned commits available. Existing working trees preserved.")
 

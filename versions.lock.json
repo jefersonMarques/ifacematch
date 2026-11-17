@@ -4,7 +4,7 @@
   "repositories": {
     "server": {
       "repository": "jefersonMarques/ifacematch-server",
-      "ref": "feature/native-cli-license-renewal-integration-v1",
+      "ref": "ifacematch-server-source-0.1.11",
       "sha": "4c150c575cc33aef7b7c03e2e925586480745cfb",
       "module": "services/api"
     },
